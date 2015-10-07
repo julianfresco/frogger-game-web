@@ -1,9 +1,15 @@
+'use strict';
+
 // Environment config variables
 var config = {
     move_x_step: 101,
-    move_y_step: 86,
+    move_y_step: 72,
     max_x: 4,
-    max_y: 6,
+    max_y: 5,
+    enemy_width: 96,
+    enemy_height: 66,
+    enemy_x_padding: 78,
+    enemy_y_padding: 2
 };
 
 // Enemies our player must avoid
@@ -16,11 +22,21 @@ var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
     this.move_step = 101;
     // Assign random x and y starting positions
-    this.x = Math.random() * 5;
-    this.y = Math.random() * 3;
+    this.init();
     // Assign random speed
-    this.speed = Math.random() * 5;
+    this.speed = Math.random();
 };
+
+Enemy.prototype.init = function(){
+    // Returns a random integer between min (included) and max (included)
+    // Using Math.round() will give you a non-uniform distribution!
+    function getRandomIntInclusive(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    // Assign position
+    this.x = getRandomIntInclusive(0, 4);
+    this.y = getRandomIntInclusive(1, 3);
+}
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -28,14 +44,16 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    this.x = this.x + this.speed * dt;
+    this.x += this.speed * dt;
+
+    // Check if collided with enemy
+    if( Math.round(this.y) === player.y && Math.round(this.x) === player.x) {
+        player.collision();
+    }
 
     // Reset the position if needed
-    if(this.x >= config.max_x) {
-        this.x -= config.max_x;
-    }
-    if(this.y >= config.max_y) {
-        this.y -= config.max_y;
+    if(Math.floor(this.x) >= config.max_x + 1) {
+        this.x = -1;
     }
 
     this.render();
@@ -57,30 +75,47 @@ var Player = function(){
     this.move_x_step = 101;
     this.move_y_step = 86;
     this.x_start = 2;
-    this.y_start = 3;
+    this.y_start = config.max_y;
     this.x = this.x_start;
     this.y = this.y_start;
     this.score = 0;
     this.score_step = 10;
 }
 
+// Collision deducts the score and resets the player
+Player.prototype.collision = function(){
+    this.score -= this.score_step / 5;
+    this.reset();
+}
+
+// Scored increments the score and resets the player
+Player.prototype.scored = function(){
+    this.score += this.score_step;
+    this.reset();
+}
+
+// Resets the player
+Player.prototype.reset = function(){
+    this.x = this.x_start;
+    this.y = this.y_start;
+}
+
 // Check if Player has touched an Enemy or the Goal
 Player.prototype.update = function() {
-    // Check if collided with enemy
-    allEnemies.forEach(function(en){
-        if( en.x === this.x && en.y === this.y ) {
-            // We're dead
-            this.x = this.x_start;
-            this.y = this.y_start;
-            this.score -= this.score_step / 5;
-        }
-    });
-
     // Check if scored
-    if( this.y === 1 ) {
-        this.x = this.x_start;
-        this.y = this.y_start;
-        this.score += this.score_step;
+    if( this.y === 0 ) {
+        this.scored();
+    }
+
+    // Player must stay inside the board
+    if(this.x > config.max_x) {
+        this.x = config.max_x;
+    }
+    if(this.x < 0) {
+        this.x = 0;
+    }
+    if(this.y < 0) {
+        this.y = 0;
     }
 
     this.render();
@@ -90,23 +125,20 @@ Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), 
         this.x * config.move_x_step, 
         this.y * config.move_y_step);
+    document.getElementById('score').innerHTML = this.score;
 };
 
 // Update the player's position, call update()
 Player.prototype.handleInput = function(move) {
     switch (move) {
         case 'left':
-            this.x -= 1;
-            break;
+            this.x -= 1; break;
         case 'right':
-            this.x += 1;
-            break;
+            this.x += 1; break;
         case 'up':
-            this.y -= 1;
-            break;
+            this.y -= 1; break;
         case 'down':
-            this.y += 1;
-            break;
+            this.y += 1; break;
     }
     this.update();
 };
@@ -116,7 +148,7 @@ Player.prototype.handleInput = function(move) {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 var allEnemies = [];
-for (var i = 0; i < 5; i++) {
+for (var i = 0; i < 6; i++) {
     allEnemies.push(new Enemy());
 };
 var player = new Player();
