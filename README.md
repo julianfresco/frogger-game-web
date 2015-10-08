@@ -28,10 +28,10 @@ After scoring, your player will be reset to their initial position for another a
 
 Use your arrow keys to navigate through the game environment
 
-Up arrow - player moves up 1 space
-Down arrow - player moves down 1 space
-Left arrow - player moves left 1 space
-Right arrow - player moves right 1 space
+Up arrow | player moves up 1 space
+Down arrow | player moves down 1 space
+Left arrow | player moves left 1 space
+Right arrow | player moves right 1 space
 
 
 ##### Specials
