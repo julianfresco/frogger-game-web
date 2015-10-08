@@ -24,19 +24,22 @@ var Enemy = function() {
  * Sets up initial variables for enemies
  */
 Enemy.prototype.init = function(){
-
-    // Returns a random integer between min (included) and max (included)
-    // Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-    function getRandomIntInclusive(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
     // Assign position
-    this.x = getRandomIntInclusive(0, 4);
-    this.y = getRandomIntInclusive(1, 3);
+    this.x = this.getRandomIntInclusive(0, 4);
+    this.y = this.getRandomIntInclusive(1, 3);
 
     // Assign random speed
-    this.speed = Math.random();
+    this.speed = Math.random() + 0.05;
+};
+
+/*
+ * Returns a random integer between min (included) and max (included)
+ * Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+ * @param min - lowest integer value in range (inclusive)
+ * @param max - highest integer value in range (inclusive)
+ */
+Enemy.prototype.getRandomIntInclusive = function (min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 /*
@@ -44,9 +47,6 @@ Enemy.prototype.init = function(){
  * @param dt - a time delta between ticks
  */
 Enemy.prototype.update = function(dt) {
-    // Multiply enemy movement by dt parameter
-    this.x += this.speed * dt;
-
     // Check if collided with enemy
     if( Math.round(this.y) === player.y && Math.round(this.x) === player.x) {
         player.collision();
@@ -55,7 +55,12 @@ Enemy.prototype.update = function(dt) {
     // Reset the position if needed
     if(Math.floor(this.x) >= config.MAX_X + 1) {
         this.x = -1;
+        // Randomize the y position
+        this.y = this.getRandomIntInclusive(1, 3);
     }
+
+    // Multiply enemy movement by dt parameter
+    this.x += this.speed * dt * (Math.floor((player.score + 1)/50) + 1);
 
     this.render();
 };
