@@ -99,6 +99,7 @@ Player.prototype.init = function(){
 
     // Assign init score
     this.score = 0;
+    this.highestScore = 0;
 };
 
 /*
@@ -117,8 +118,21 @@ Player.prototype.collision = function(){
 Player.prototype.scored = function(){
     // Augment the score
     this.score += this.score_step;
+    if (this.score > this.highestScore) {
+        this.highestScore = this.score;
+    }
+    // Check for special
+    var pts = this.score - (this.score % 10);
+    special.activate(pts);
     // Reset the player
     this.reset();
+};
+
+/*
+ * Adds the special value to the player's score
+ */
+Player.prototype.addSpecial = function(value){
+    this.score += value;
 };
 
 /*
@@ -164,6 +178,7 @@ Player.prototype.render = function() {
         this.y * config.MOVE_Y_STEP);
     // Update score
     document.getElementById('score').innerHTML = this.score;
+    document.getElementById('highest').innerHTML = this.highestScore;
 };
 
 /*
@@ -184,6 +199,88 @@ Player.prototype.handleInput = function(move) {
     this.update();
 };
 
+/*
+ * A special bonus point
+ */
+var Special = function(){
+    // Not active to start
+    this.active = false;
+    // Sprite image
+    this.sprite = 'images/Star.png';
+    // The amount added to player's score
+    this.value = 25;
+    // Initial position
+    this.x = -1;
+    this.y = Enemy.prototype.getRandomIntInclusive(1, 3);
+    // Initial speed
+    this.speed = Math.random() * 0.5 + 0.1;
+    // Tracks special milestones
+    this.milestones = [];
+};
+
+/*
+ * Activate a bonus star when a score is divisible by 100
+ * @param pts - the player's score when invoked
+ */
+Special.prototype.activate = function(pts){
+    // Reject if pts is zero
+    if (pts === 0) { return; }
+    // Reject if not divisible by 100
+    if (pts % 100 !== 0) { return; }
+    // Reject if score has alread received special
+    if (this.milestones.indexOf(pts) !== -1) { return; }
+    // Generate a new special
+    this.active = true;
+    // Prevents special from re-appearing for given score
+    this.milestones.push(pts);
+};
+
+/*
+ * Resets the special
+ */
+Special.prototype.reset = function(){
+    this.active = false;
+    this.x = -1;
+    // Randomize the y position for next time
+    this.y = Enemy.prototype.getRandomIntInclusive(1, 3);
+    // Randomize the speed again with scalar multiplier
+    this.speed = Math.random() * 0.5 + 0.1 * this.milestones.length;
+};
+
+/*
+ * Updates the special's state and location
+ * @param dt - a time delta between ticks
+ */
+Special.prototype.update = function(dt){
+    if (this.active) {
+        // if special was earned
+        if( Math.round(this.y) === player.y && Math.round(this.x) === player.x) {
+            this.reset();
+            player.addSpecial(this.value);
+        }
+
+        // if special left the game board
+        if(Math.floor(this.x) >= config.MAX_X + 1) {
+            this.reset();
+        }
+
+        // Multiply star movement by dt parameter
+        this.x += this.speed * dt;
+
+        this.render();
+    }
+};
+
+/*
+ * Render the special's position
+ */
+Special.prototype.render = function(){
+    if (this.active) {
+        ctx.drawImage(Resources.get(this.sprite), 
+            this.x * config.MOVE_X_STEP, 
+            this.y * config.MOVE_Y_STEP);
+    }
+};
 
 /*
  * Instantiate player and enemies.
@@ -195,7 +292,9 @@ var allEnemies = [];
 for (var i = 0; i < 6; i++) {
     allEnemies.push(new Enemy());
 }
+var special = new Special();
 var player = new Player();
+
 
 /*
  * Listens for key presses and sends the keys to Player.handleInput()
