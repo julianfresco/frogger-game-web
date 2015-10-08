@@ -3,11 +3,11 @@
 // Environment config variables
 var config = {
     // Scalar values to multiply by player position
-    move_x_step: 101,
-    move_y_step: 72,
+    MOVE_X_STEP: 101,
+    MOVE_Y_STEP: 72,
     // Max position value
-    max_x: 4,
-    max_y: 5
+    MAX_X: 4,
+    MAX_Y: 5
 };
 
 // Enemies our player must avoid
@@ -32,7 +32,7 @@ Enemy.prototype.init = function(){
 
     // Assign random speed
     this.speed = Math.random();
-}
+};
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -46,7 +46,7 @@ Enemy.prototype.update = function(dt) {
     }
 
     // Reset the position if needed
-    if(Math.floor(this.x) >= config.max_x + 1) {
+    if(Math.floor(this.x) >= config.MAX_X + 1) {
         this.x = -1;
     }
 
@@ -56,8 +56,8 @@ Enemy.prototype.update = function(dt) {
 // Draw the enemy on the screen
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), 
-        this.x * config.move_x_step, 
-        this.y * config.move_y_step);
+        this.x * config.MOVE_X_STEP, 
+        this.y * config.MOVE_Y_STEP);
 };
 
 // Our player class
@@ -66,13 +66,13 @@ var Player = function(){
     this.sprite = 'images/char-horn-girl.png';
     // Assign starting values
     this.init();
-}
+};
 
 // Initializes our player
 Player.prototype.init = function(){
     // Init variables
     this.x_start = 2;
-    this.y_start = config.max_y;
+    this.y_start = config.MAX_Y;
     this.score_step = 10;
 
     // Assign init position
@@ -81,7 +81,7 @@ Player.prototype.init = function(){
 
     // Assign init score
     this.score = 0;
-}
+};
 
 // Collision deducts the score and resets the player
 Player.prototype.collision = function(){
@@ -89,7 +89,7 @@ Player.prototype.collision = function(){
     this.score -= this.score_step / 5;
     // Reset the player
     this.reset();
-}
+};
 
 // Scored increments the score and resets the player
 Player.prototype.scored = function(){
@@ -97,13 +97,13 @@ Player.prototype.scored = function(){
     this.score += this.score_step;
     // Reset the player
     this.reset();
-}
+};
 
 // Resets the player's starting position
 Player.prototype.reset = function(){
     this.x = this.x_start;
     this.y = this.y_start;
-}
+};
 
 // Check if Player has touched an Enemy or the Goal
 Player.prototype.update = function() {
@@ -113,11 +113,11 @@ Player.prototype.update = function() {
     }
 
     // Player must stay inside the board
-    if(this.x > config.max_x) {
-        this.x = config.max_x;
+    if(this.x > config.MAX_X) {
+        this.x = config.MAX_X;
     }
-    if(this.y > config.max_y) {
-        this.y = config.max_y;
+    if(this.y > config.MAX_Y) {
+        this.y = config.MAX_Y;
     }
     if(this.x < 0) {
         this.x = 0;
@@ -132,8 +132,8 @@ Player.prototype.update = function() {
 // Draw the player on the screen
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), 
-        this.x * config.move_x_step, 
-        this.y * config.move_y_step);
+        this.x * config.MOVE_X_STEP, 
+        this.y * config.MOVE_Y_STEP);
     // Update score
     document.getElementById('score').innerHTML = this.score;
 };
@@ -162,7 +162,7 @@ var allEnemies = [];
 // Create arbitrary number of enemies
 for (var i = 0; i < 6; i++) {
     allEnemies.push(new Enemy());
-};
+}
 var player = new Player();
 
 // Listens for key presses and sends the keys to Player.handleInput()
