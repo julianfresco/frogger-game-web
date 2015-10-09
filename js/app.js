@@ -113,26 +113,21 @@ Player.prototype.collision = function(){
 };
 
 /*
- * Scored increments the score and resets the player
+ * Increments the score and resets the player
+ * @param value - the amount to add to player's score
+ * @param reset - boolean, whether to reset player
  */
-Player.prototype.scored = function(){
+Player.prototype.scored = function(value, reset){
     // Augment the score
-    this.score += this.score_step;
+    this.score += value;
     if (this.score > this.highestScore) {
         this.highestScore = this.score;
     }
     // Check for special
     var pts = this.score - (this.score % 10);
     special.activate(pts);
-    // Reset the player
-    this.reset();
-};
 
-/*
- * Adds the special value to the player's score
- */
-Player.prototype.addSpecial = function(value){
-    this.score += value;
+    if (reset) { this.reset(); }
 };
 
 /*
@@ -149,7 +144,7 @@ Player.prototype.reset = function(){
 Player.prototype.update = function() {
     // Check if scored
     if( this.y === 0 ) {
-        this.scored();
+        this.scored(this.score_step, true);
     }
 
     // Player must stay inside the board
@@ -256,7 +251,7 @@ Special.prototype.update = function(dt){
         // if special was earned
         if( Math.round(this.y) === player.y && Math.round(this.x) === player.x) {
             this.reset();
-            player.addSpecial(this.value);
+            player.scored(this.value);
         }
 
         // if special left the game board
