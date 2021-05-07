@@ -3,7 +3,7 @@
 
 Please visit and play the game from any laptop or desktop (you will need a keyboard to play).
 
-**[Frogger-like Classic Arcade Game](http://julianfresco.github.io/udacity.frontenddev.p3/)**
+**[Frogger-like Classic Arcade Game](http://julianfresco.github.io/frogger-game-web/)**
 
 
 ### How to play
